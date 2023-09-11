@@ -144,7 +144,7 @@ void displayInfo()
     simSerial.listen();
 
     delay(2000);
-    sendSMS(output);
+    //sendSMS(output);
   }
 
   gpsSerial.listen();
