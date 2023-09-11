@@ -54,28 +54,16 @@ void loop() {
   }
   else
   {
-    String latlng = "ini";
     gpsSerial.listen();
-    delay(5000);
+    //delay(5000);
     while (gpsSerial.available() > 0)
       if (gps.encode(gpsSerial.read()))
         {
-          latlng = displayInfo();
-          Serial.println("Lat i lng: ");
-          Serial.print(latlng);
-          Serial.println();
+          displayInfo();
           break;
         }
-    findCords = false;
-    delay(2000);
-
-
-    if (latlng != "ini" && latlng != "error")
-    {
-      simSerial.listen();
-      delay(8000);
-      sendSMS(latlng);
-    }
+    //findCords = false;
+    //delay(2000);
 
   }
 }
@@ -117,6 +105,8 @@ void updateSerial()
 
 void sendSMS(String text)
 {
+  Serial.print("Wysylam SMS: ");
+  Serial.println(text);
   simSerial.println("AT+CMGS=\"+48516574688\"");//change ZZ with country code and xxxxxxxxxxx with phone number to sms
   updateSerial();
   simSerial.print(text); //text content
@@ -125,63 +115,38 @@ void sendSMS(String text)
 }
 
 
-String displayInfo()
+void displayInfo()
 {
-  double lat = 0.0, lng = 0.0;
+  Serial.println("Jestesmy w funkcji displayInfo");
+  String output;
+  float lat = 0.000000, lng = 0.000000;
   if (gps.location.isValid())
   {
-    lat = (gps.location.lat(), 6);
-    lng = (gps.location.lng(), 6);
-    // Serial.print("Latitude: ");
-    // Serial.println(lat);
-    // Serial.print("Longitude: ");
-    // Serial.println(lng);
+    lat = gps.location.lat();
+    lng = gps.location.lng();
   }
   else
   {
-    return "error";
+    output = "error";
   }
+  simSerial.listen();
   
-  // Serial.print("Date: ");
-  // if (gps.date.isValid())
-  // {
-  //   Serial.print(gps.date.month());
-  //   Serial.print("/");
-  //   Serial.print(gps.date.day());
-  //   Serial.print("/");
-  //   Serial.println(gps.date.year());
-  // }
-  // else
-  // {
-  //   Serial.println("Not Available");
-  // }
-
-  // Serial.print("Time: ");
-  // if (gps.time.isValid())
-  // {
-  //   if (gps.time.hour() < 10) Serial.print(F("0"));
-  //   Serial.print(gps.time.hour());
-  //   Serial.print(":");
-  //   if (gps.time.minute() < 10) Serial.print(F("0"));
-  //   Serial.print(gps.time.minute());
-  //   Serial.print(":");
-  //   if (gps.time.second() < 10) Serial.print(F("0"));
-  //   Serial.print(gps.time.second());
-  //   Serial.print(".");
-  //   if (gps.time.centisecond() < 10) Serial.print(F("0"));
-  //   Serial.println(gps.time.centisecond());
-  // }
-  // else
-  // {
-  //   Serial.println("Not Available");
-  // }
-
-  // Serial.println();
-  // Serial.println();
   delay(1000);
 
-  String outLat(lat);
-  String outLng(lng);
+  String outLat(lat, 6);
+  String outLng(lng, 6);
+  output = ("https://www.google.com/maps/place/" + outLat + "," + outLng);
 
-  return ("https://www.google.com/maps/place/" + outLat + ',' + outLng);
+  
+  if (output != "error")
+  {
+    findCords = false;
+    simSerial.listen();
+
+    delay(2000);
+    sendSMS(output);
+  }
+
+  gpsSerial.listen();
+
 }
