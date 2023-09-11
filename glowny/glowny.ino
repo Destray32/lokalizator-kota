@@ -16,21 +16,15 @@ String command = "pozycja";
 bool connected = false;
 bool findCords = false;
 
-
 void setup() {
   //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
   Serial.begin(9600);
   
-
   // Begin serial communication with gps module
   gpsSerial.begin(9600);
 
-
   //Begin serial communication with Arduino and SIM800L
   simSerial.begin(9600);
-
-
-
 
   // Set the reset pin as an output and initialize it to HIGH
   pinMode(RST, OUTPUT);
@@ -55,15 +49,12 @@ void loop() {
   else
   {
     gpsSerial.listen();
-    //delay(5000);
     while (gpsSerial.available() > 0)
       if (gps.encode(gpsSerial.read()))
         {
           displayInfo();
           break;
         }
-    //findCords = false;
-    //delay(2000);
 
   }
 }
@@ -144,7 +135,7 @@ void displayInfo()
     simSerial.listen();
 
     delay(2000);
-    //sendSMS(output);
+    sendSMS(output);
   }
 
   gpsSerial.listen();
